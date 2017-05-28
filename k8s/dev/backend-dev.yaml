@@ -1,0 +1,35 @@
+kind: Deployment
+apiVersion: extensions/v1beta1
+metadata:
+  name: translate-backend-dev
+spec:
+  replicas: 1
+  template:
+    metadata:
+      name: translate
+      labels:
+        app: translate
+        role: backend
+        env: dev
+    spec:
+      containers:
+        - name: translate
+          image: DOCKER_IMAGE
+          ports:
+            - name: http
+              containerPort: 8080
+          env:
+            - name: SERVICE_ACCOUNT
+              value: "/service-account/fsworker-service-account.json"
+            - name: GOOGLE_APPLICATION_CREDENTIALS
+              value: "/service-account/fsworker-service-account.json"
+          volumeMounts:
+            - name: service-account
+              mountPath: /service-account
+      volumes:
+        - name: images-store
+          persistentVolumeClaim:
+            claimName: shared-images-store
+        - name: service-account
+          secret:
+            secretName: fsworker-service-account
