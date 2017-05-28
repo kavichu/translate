@@ -44,31 +44,24 @@ func handler (w http.ResponseWriter, req *http.Request) {
         return 
     }
 
-    // Sets the target language.
-    target, err := language.Parse(langDetection[0][0].Language.String())
-    if err != nil {
-        log.Fatalf("Failed to parse target language: %v", err)
-        return
-    }
-
-    // supported languages
-    langs, err := client.SupportedLanguages(ctx, target)
-    if err != nil {
-        log.Fatalf("Failed to find supported languages: %v", err)
-        return
+    langs := []language.Tag {
+        language.English,
+        language.Spanish,
+        language.German,
+        language.BrazilianPortuguese,
+        language.Chinese,
     }
     i18nText.Target_lang = langDetection[0][0].Language.String()
 
     resultTranslations := make(map[string]string)
     for _, lang := range langs {
-        fmt.Fprintf(w, "%q: %s\n", lang.Tag, lang.Name)
-        translations, err := client.Translate(ctx, []string{i18nText.Text}, lang.Tag, nil)
+        translations, err := client.Translate(ctx, []string{i18nText.Text}, lang, nil)
         if err != nil {
             log.Fatalf("Failed to translate text: %v", err)
         }else{
             fmt.Printf("Text: %v\n", i18nText.Text)
             fmt.Printf("Translation: %v\n", translations[0].Text)
-            resultTranslations[lang.Tag.String()] = translations[0].Text
+            resultTranslations[lang.String()] = translations[0].Text
         }
     }
 
